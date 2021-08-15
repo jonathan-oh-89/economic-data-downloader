@@ -1,8 +1,9 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/jonathan-oh-89/economic-data-downloader/census"
-	"github.com/jonathan-oh-89/economic-data-downloader/mongoclient"
 	// "github.com/go-gota/gota/dataframe"
 )
 
@@ -10,8 +11,10 @@ func main() {
 
 	// db.Test()
 
+	fmt.Print("Startimg")
+
 	if true {
-		mongoclient.MongoStoreGeo()
+		census.DumpCensusGeoFips("state")
 	}
 
 	if false {
@@ -23,8 +26,6 @@ func main() {
 	// // Select groups to store in csv and run
 
 	// census.DownloadToCSV("B15003")
-
-	census.DumpCensusGeoFips()
 
 	census.Test("B11012", "county")
 	census.Do("06", "county")

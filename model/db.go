@@ -14,8 +14,8 @@ type CensusVariables struct {
 }
 
 type StateInfo struct {
-	fipsstatecode string `json:"statefipscode"`
-	statename     string `json:"statename"`
+	FipsStateCode string `json:"statefipscode"`
+	StateName     string `json:"statename"`
 }
 
 type CountyInfo struct {

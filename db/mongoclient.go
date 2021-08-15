@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 	"github.com/jonathan-oh-89/economic-data-downloader/model"
+	"github.com/jonathan-oh-89/economic-data-downloader/utils"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -27,33 +27,56 @@ func connectToMongo() *mongo.Client {
 
 	// clientOptions := options.Client().ApplyURI("mongodb+srv://admin:<password>@scopeout.hdtom.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
 	clientOptions := options.Client().ApplyURI(fmt.Sprintf("mongodb+srv://%s:%s@%s/%s?retryWrites=true&w=majority", un, pw, host, database))
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	client, err := mongo.Connect(context.TODO(), clientOptions)
 
-	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	defer client.Disconnect(ctx)
+	err = client.Ping(context.TODO(), nil)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Connected to MongoDB!")
 
 	return client
 }
 
-func MongoStoreGeo() {
+func MongoStoreGeo(lines [][]string, geoLevel string) {
 	// fmt.Print("Mongo initialize disabled")
 	// return
+
+	statesArray := []interface{}{}
+
+	for i, line := range lines {
+
+		if i < 1 {
+			continue
+		}
+
+		stateInfo := model.StateInfo{FipsStateCode: line[9], StateName: line[8]}
+
+		data, err := utils.MarshallStructtoBson(stateInfo)
+
+		statesArray = append(statesArray, data)
+
+		if err != nil {
+			panic(err)
+		}
+	}
 
 	client := connectToMongo()
 
 	collection := client.Database("scopeout").Collection("State")
 
-	states := []model.StateInfo{}
-
-	insertManyResult, err := collection.InsertMany(context.TODO(), states)
+	_, err := collection.InsertMany(context.TODO(), statesArray)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Inserted multiple documents: ", insertManyResult.InsertedIDs)
+
+	fmt.Println("Done storing geo: ", geoLevel)
 }
 
 func MongoCensusGroups(cvglist []model.CensusVariablesGroups) {

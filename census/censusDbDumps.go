@@ -14,48 +14,10 @@ import (
 	"github.com/jonathan-oh-89/economic-data-downloader/utils"
 )
 
-func DumpCensusGeoFips() {
-	// geoLevelList := []string{
-	// 	"state",
-	// 	"county",
-	// 	"metropolitan%20statistical%20area/micropolitan%20statistical%20area",
-	// }
-
-	// * source from: https://www.nber.org/research/data/census-core-based-statistical-area-cbsa-federal-information-processing-series-fips-county-crosswalk
+func DumpCensusGeoFips(geoLevel string) {
 	lines := utils.ReadCSV("/files/cbsa2fipsxw.csv")
 
-	for i, line := range lines {
-		_ = i
-		_ = line
-	}
-
-	// for i, geoLevel := range geoLevelList {
-
-	// 	url := fmt.Sprintf("https://api.census.gov/data/2019/acs/acs5?get=NAME&for=%s:*", geoLevel)
-
-	// 	response, err := http.Get(url)
-	// 	if err != nil {
-	// 		fmt.Print("", err)
-	// 	}
-
-	// 	defer response.Body.Close()
-
-	// 	responseData, err := ioutil.ReadAll(response.Body)
-
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-
-	// 	var censusVariableGroups map[string][]model.CensusVariablesGroups
-
-	// 	err = json.Unmarshal(responseData, &censusVariableGroups)
-	// 	if err != nil {
-	// 		fmt.Print(err)
-	// 	}
-
-	// 	// db.InitializeCensusGroups(censusVariableGroups["groups"])
-
-	// }
+	db.MongoStoreGeo(lines, geoLevel)
 }
 
 func DumpCensusVariableGroups() {
