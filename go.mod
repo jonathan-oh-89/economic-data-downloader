@@ -4,8 +4,7 @@ go 1.16
 
 require (
 	github.com/go-gota/gota v0.11.0
-	github.com/go-sql-driver/mysql v1.6.0 // indirect
-	github.com/gorilla/mux v1.8.0
-	github.com/joho/godotenv v1.3.0 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
+	github.com/go-sql-driver/mysql v1.6.0
+	github.com/joho/godotenv v1.3.0
+	go.mongodb.org/mongo-driver v1.7.1
 )

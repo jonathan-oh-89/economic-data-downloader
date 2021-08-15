@@ -1,0 +1,21 @@
+variableNameArr,COL.1,COL.2
+NAME,NAME,"Orange County, California"
+Total,B11012_001E,1037492
+"Male householder, no spouse or partner present!!With relatives, no own children under 18 years",B11012_016E,30609
+"Female householder, no spouse or partner present!!With own children under 18 years",B11012_010E,41777
+"Female householder, no spouse or partner present!!Living alone",B11012_009E,126368
+"Female householder, no spouse or partner present!!With relatives, no own children under 18 years",B11012_011E,63959
+Cohabiting couple household,B11012_005E,57500
+Married-couple household,B11012_002E,569260
+Married-couple household!!With no own children under 18 years,B11012_004E,322310
+Cohabiting couple household!!With no own children of the householder under 18 years,B11012_007E,37744
+"Male householder, no spouse or partner present",B11012_013E,159440
+"Male householder, no spouse or partner present!!With only nonrelatives present",B11012_017E,23856
+"Male householder, no spouse or partner present!!With own children under 18 years",B11012_015E,12508
+Married-couple household!!With own children under 18 years,B11012_003E,246950
+Cohabiting couple household!!With own children of the householder under 18 years,B11012_006E,19756
+"Female householder, no spouse or partner present",B11012_008E,251292
+"Female householder, no spouse or partner present!!With only nonrelatives present",B11012_012E,19188
+"Male householder, no spouse or partner present!!Living alone",B11012_014E,92467
+state,state,06
+county,county,059

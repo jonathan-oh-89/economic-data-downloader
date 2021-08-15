@@ -2,8 +2,7 @@ package main
 
 import (
 	"github.com/jonathan-oh-89/economic-data-downloader/census"
-	// "github.com/jonathan-oh-89/economic-data-downloader/config"
-	"github.com/jonathan-oh-89/economic-data-downloader/db"
+	"github.com/jonathan-oh-89/economic-data-downloader/mongoclient"
 	// "github.com/go-gota/gota/dataframe"
 )
 
@@ -11,15 +10,24 @@ func main() {
 
 	// db.Test()
 
+	if true {
+		mongoclient.MongoStoreGeo()
+	}
+
 	if false {
-		db.InitializeDB()
-		grouplist := census.GetCensusVariableGroups()["groups"]
-		db.DumpCensusVariableGroups(grouplist)
+		// db.InitializeDB()
+		census.DumpCensusVariableGroups()
+		census.DumpSelectedCensusVariables()
 	}
 
 	// // Select groups to store in csv and run
-	// census.DumpSelectedCensusVariables()
 
-	census.Test("B08301", false)
+	// census.DownloadToCSV("B15003")
+
+	census.DumpCensusGeoFips()
+
+	census.Test("B11012", "county")
+	census.Do("06", "county")
+
 	// census.CheckAPI()
 }

@@ -21,6 +21,9 @@ func Test() {
 func connectToDb() *sql.DB {
 	// dbConfig := c.Config
 	err := godotenv.Load(".env")
+	if err != nil {
+		panic(err)
+	}
 
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
@@ -64,7 +67,8 @@ func InitializeDB() {
 	}
 }
 
-func DumpCensusVariableGroups(cvglist []model.CensusVariablesGroups) {
+func InitializeCensusGroups(cvglist []model.CensusVariablesGroups) {
+
 	db := connectToDb()
 	defer db.Close()
 
@@ -83,7 +87,7 @@ func DumpCensusVariableGroups(cvglist []model.CensusVariablesGroups) {
 	}
 }
 
-func DumpCensusVariables(censusVariablesForDB []model.CensusVariables, storeInDBDone chan bool) {
+func InitializeCensusVariables(censusVariablesForDB []model.CensusVariables, storeInDBDone chan bool) {
 
 	db := connectToDb()
 	defer db.Close()
