@@ -11,10 +11,11 @@ func main() {
 
 	// db.Test()
 
-	fmt.Print("Startimg")
+	fmt.Print("Starting")
 
 	if true {
-		census.DumpCensusGeoFips("state")
+		//dump county and msa too
+		census.DumpCensusGeoFips("county")
 	}
 
 	if false {

@@ -48,28 +48,38 @@ func MongoStoreGeo(lines [][]string, geoLevel string) {
 	// fmt.Print("Mongo initialize disabled")
 	// return
 
+	collectionName := ""
+	stateInfo := model.StateInfo{}
+	countyInfo := model.CountyInfo{}
 	statesArray := []interface{}{}
+	data := []byte{}
 
 	for i, line := range lines {
 
-		if i < 1 {
+		if i < 2 {
 			continue
 		}
 
-		stateInfo := model.StateInfo{FipsStateCode: line[9], StateName: line[8]}
+		switch geoLevel {
+		case "state":
+			stateInfo = model.StateInfo{FipsStateCode: line[9], StateName: line[8]}
+			data, _ = utils.MarshallStructtoBson(stateInfo)
+			collectionName = "State"
+		case "county":
+			stateInfo = model.StateInfo{FipsStateCode: line[9], StateName: line[8]}
+			countyInfo = model.CountyInfo{FipsCountyCode: line[10], CountyCountyEquivalent: line[7], StateInfo: stateInfo}
+			data, _ = utils.MarshallStructtoBson(countyInfo)
+			collectionName = "County"
+		default:
 
-		data, err := utils.MarshallStructtoBson(stateInfo)
+		}
 
 		statesArray = append(statesArray, data)
-
-		if err != nil {
-			panic(err)
-		}
 	}
 
 	client := connectToMongo()
 
-	collection := client.Database("scopeout").Collection("State")
+	collection := client.Database("scopeout").Collection(collectionName)
 
 	_, err := collection.InsertMany(context.TODO(), statesArray)
 	if err != nil {
@@ -79,45 +89,6 @@ func MongoStoreGeo(lines [][]string, geoLevel string) {
 	fmt.Println("Done storing geo: ", geoLevel)
 }
 
-func MongoCensusGroups(cvglist []model.CensusVariablesGroups) {
+func getGeoMongoCollection(geoLevel string) {
 
-	db := connectToDb()
-	defer db.Close()
-
-	sqlCall := "INSERT INTO census_variable_groups(groupid, description, variableslink) VALUES "
-	for _, row := range cvglist {
-		sqlCall += fmt.Sprintf(`("%s", "%s", "%s"),`, row.Name, row.Description, row.Variables)
-	}
-
-	// Get rid of last comma
-	sqlCall = sqlCall[0 : len(sqlCall)-1]
-
-	_, err := db.Exec(sqlCall)
-	if err != nil {
-		fmt.Print("SQL ERROR: ", err)
-		panic(err)
-	}
-}
-
-func MongoCensusVariables(censusVariablesForDB []model.CensusVariables, storeInDBDone chan bool) {
-
-	db := connectToDb()
-	defer db.Close()
-
-	sqlCall := "INSERT INTO census_variables(variableid, label, concept, groupid) VALUES "
-
-	for _, cv := range censusVariablesForDB {
-		sqlCall += fmt.Sprintf(`("%s", "%s", "%s", "%s"),`, cv.VariableID, cv.Label, cv.Concept, cv.GroupID)
-	}
-
-	// Get rid of last comma
-	sqlCall = sqlCall[0 : len(sqlCall)-1]
-
-	_, err := db.Exec(sqlCall)
-	if err != nil {
-		fmt.Printf("SQL ERROR: %s", err)
-		panic(err)
-	}
-
-	storeInDBDone <- true
 }

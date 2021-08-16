@@ -19,8 +19,8 @@ type StateInfo struct {
 }
 
 type CountyInfo struct {
-	fipscountycode         string `json:"countyfipscode"`
-	countycountyequivalent string `json:"countyname"`
+	FipsCountyCode         string `json:"countyfipscode"`
+	CountyCountyEquivalent string `json:"countyname"`
 	StateInfo              StateInfo
 }
 
