@@ -12,3 +12,7 @@ func MarshallStructtoBson(v interface{}) ([]byte, error) {
 
 	return data, err
 }
+
+func UnMarshallBsonArray() {
+
+}

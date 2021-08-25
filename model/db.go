@@ -25,7 +25,7 @@ type CountyInfo struct {
 }
 
 type CBSAInfo struct {
-	cbsacode  string       `json:"cbsacode"`
-	cbsatitle string       `json:"cbsaname"`
-	counties  []CountyInfo `json:"counties"`
+	CbsaCode  string       `json:"cbsafipscode"`
+	CbsaTitle string       `json:"cbsaname"`
+	Counties  []CountyInfo `json:"counties"`
 }

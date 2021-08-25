@@ -7,7 +7,7 @@ import (
 	"github.com/go-gota/gota/dataframe"
 )
 
-func GotaToCSV(df dataframe.DataFrame) {
+func SaveToCSV(df dataframe.DataFrame) {
 	wd, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)

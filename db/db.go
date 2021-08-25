@@ -45,7 +45,7 @@ func connectToDb() *sql.DB {
 
 func InitializeDB() {
 	fmt.Print("db initialize disabled")
-	// return
+	return
 
 	db := connectToDb()
 	defer db.Close()

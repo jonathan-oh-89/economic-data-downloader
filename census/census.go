@@ -66,7 +66,8 @@ func testAPI(apiparams string, groupid string, geoLevel string) {
 	}
 }
 
-func Do(stateFips string, geoLevel string) {
+// Pass in geoFips and geoLevel. Iterate through census groups and gather all the variables/data needed.
+func Do(geoFips string, geoLevel string) {
 
 	for _, censusGroupID := range censusGroups {
 		variablesDescGroup := getVariablesToInclude(censusGroupID, geoLevel, true)
@@ -76,7 +77,7 @@ func Do(stateFips string, geoLevel string) {
 			apiParams = apiParams + key + ","
 		}
 
-		callAPI(apiParams[:len(apiParams)-1], censusGroupID, geoLevel, stateFips)
+		callAPI(apiParams[:len(apiParams)-1], censusGroupID, geoLevel, geoFips)
 	}
 }
 
@@ -320,7 +321,7 @@ func DownloadToCSV(testgroup string) {
 					series.New(arr[1], series.String, "COL.2"),
 				)
 
-				utils.GotaToCSV(df)
+				utils.SaveToCSV(df)
 			}
 			groupid = lines[i+1][3]
 			apiParams = ""
@@ -330,7 +331,7 @@ func DownloadToCSV(testgroup string) {
 
 }
 
-func CheckAPI() {
+func getPopulation() {
 	//https://api.census.gov/data/2019/pep/population?get=COUNTY,DATE_CODE,DATE_DESC,DENSITY,POP,NAME,STATE&for=state:01
 
 }
