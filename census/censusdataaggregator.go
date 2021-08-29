@@ -24,7 +24,7 @@ func testAggregate(header []string, dataRow []string, censusvariableslookup map[
 		variabledescgroup := headerDescriptions[i]
 
 		if utils.CheckStringInList(geoLevels, variabledescgroup.variableDesc) {
-			aggregate[variabledescgroup.variableDesc] = utils.FormatGeoFipsCode(variabledescgroup.variableDesc, v)
+			aggregate[variabledescgroup.variableDesc] = utils.FormatLeadingZeroes(variabledescgroup.variableDesc, v)
 			continue
 		} else if variabledescgroup.variableDesc == "GeoName" {
 			aggregate[variabledescgroup.variableDesc] = v
@@ -70,7 +70,7 @@ func aggregate(header []string, dataRow []string, censusvariableslookup map[stri
 		variabledescgroup := headerDescriptions[i]
 
 		if utils.CheckStringInList(geoLevels, variabledescgroup.variableDesc) {
-			aggregate[variabledescgroup.variableDesc] = utils.FormatGeoFipsCode(variabledescgroup.variableDesc, v)
+			aggregate[variabledescgroup.variableDesc] = utils.FormatLeadingZeroes(variabledescgroup.variableDesc, v)
 			continue
 		} else if variabledescgroup.variableDesc == "GeoName" {
 			aggregate[variabledescgroup.variableDesc] = v

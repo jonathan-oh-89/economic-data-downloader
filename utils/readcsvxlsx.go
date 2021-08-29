@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/tealeg/xlsx"
 )
 
 func GetCSVFile(path string) *os.File {
@@ -23,7 +25,6 @@ func GetCSVFile(path string) *os.File {
 }
 
 func ReadCSV(path string) [][]string {
-
 	wd, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
@@ -40,4 +41,17 @@ func ReadCSV(path string) [][]string {
 	}
 
 	return lines
+}
+
+func ReadXLSX(path string) *xlsx.File {
+	wd, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+	xlFile, err := xlsx.OpenFile(wd + path)
+	if err != nil {
+		fmt.Print("ERROR!")
+	}
+
+	return xlFile
 }

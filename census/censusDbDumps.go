@@ -1,6 +1,7 @@
 package census
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -12,12 +13,131 @@ import (
 	"github.com/jonathan-oh-89/economic-data-downloader/db"
 	"github.com/jonathan-oh-89/economic-data-downloader/model"
 	"github.com/jonathan-oh-89/economic-data-downloader/utils"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func DumpCensusGeoFips(geoLevel string) {
-	lines := utils.ReadCSV("/files/cbsa2fipsxw.csv")
+type CensusGeoIds struct {
+	CountyFullCode string `json:"countyfullcode"`
+	FipsCountyCode string `json:"countyfipscode"`
+	FipsStateCode  string
+	CensusYear     int
+}
 
-	db.MongoStoreGeo(lines, geoLevel)
+func DumpCensusTracts(censusyear int) {
+	/*
+		2020 Census Tract URLs: https://www.census.gov/geographies/reference-maps/2020/geo/2020pl-maps/2020-census-tract.html
+	*/
+	stateMap := db.MongoGetStatesMap()
+	xlFile := utils.ReadXLSX("/files/countytractfiles.xlsx")
+	maxMongoConnections := make(chan int, 200)
+	var success chan bool
+	runNumber := 0
+	totalRuns := 0
+	mongodbclient := db.ConnectToMongo()
+
+	for _, sheet := range xlFile.Sheets {
+		//exclude column row
+		totalRuns = len(sheet.Rows) - 1
+		success = make(chan bool, totalRuns)
+		for i, row := range sheet.Rows {
+			if i < 1 {
+				continue
+			}
+
+			if row.Cells[3].Value != fmt.Sprintf("%v", censusyear) {
+				continue
+			}
+
+			fileName := row.Cells[0].Value
+			stateinfo := stateMap[row.Cells[1].Value]
+			statefipscode := stateinfo.FipsStateCode
+			stateabbreviation := strings.ToLower(stateinfo.StateAbbreviation)
+			countyfipscode := row.Cells[2].Value
+			countyfullcode := statefipscode + countyfipscode
+
+			geoInfo := CensusGeoIds{
+				CountyFullCode: countyfullcode,
+				FipsCountyCode: countyfipscode,
+				FipsStateCode:  statefipscode,
+				CensusYear:     censusyear,
+			}
+
+			// fix the url in use below
+			url := ""
+			if geoInfo.CensusYear == 2020 {
+				url = fmt.Sprintf("https://www2.census.gov/geo/maps/DC2020/PL20/st%s_%s/censustract_maps/%sDC20CT_C%s_CT2MS.txt", geoInfo.FipsStateCode, stateabbreviation, fileName, geoInfo.CountyFullCode)
+			} else {
+				url = fmt.Sprintf("https://www2.census.gov/geo/maps/dc10map/tract/st%s_%s/%sDC10CT_C%s_CT2MS.txt", geoInfo.FipsStateCode, stateabbreviation, fileName, geoInfo.CountyFullCode)
+			}
+
+			runNumber++
+			maxMongoConnections <- runNumber
+			log.Printf("Running run#: %d", runNumber)
+
+			go parseCensusTract(url, maxMongoConnections, success, geoInfo, mongodbclient)
+		}
+	}
+
+	for {
+		select {
+		case <-success:
+			totalRuns--
+		default:
+			fmt.Print("\nWaiting for all tracts to finish")
+			time.Sleep(1 * time.Second)
+		}
+
+		if totalRuns == 0 {
+			fmt.Print("Done storing tracts!")
+			return
+		}
+	}
+}
+
+func parseCensusTract(url string, maxMongoConnections chan int, success chan bool, geoInfo CensusGeoIds, client *mongo.Client) {
+	tracts := make([]model.TractInfo, 0)
+
+	response, err := http.Get(url)
+	if err != nil {
+		log.Fatalf("ERROR: %s", err.Error())
+	}
+
+	defer response.Body.Close()
+
+	if response.StatusCode != 200 {
+		log.Printf("ERROR getting response from: %s", url)
+		return
+	}
+
+	sc := bufio.NewScanner(response.Body)
+	lines := make([]string, 0)
+
+	for sc.Scan() {
+		lines = append(lines, sc.Text())
+	}
+
+	if err := sc.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	for i, line := range lines {
+		if i < 1 {
+			continue
+		}
+
+		lineSplit := strings.Split(line, ";")
+
+		tractcode := lineSplit[1]
+
+		tracts = append(tracts, model.TractInfo{
+			TractCode:      tractcode,
+			CensusYear:     geoInfo.CensusYear,
+			CountyFullCode: geoInfo.CountyFullCode,
+			FipsStateCode:  geoInfo.FipsStateCode,
+			FipsCountyCode: geoInfo.FipsCountyCode,
+		})
+	}
+	db.MongoStoreTracts(tracts, maxMongoConnections, success, client)
 }
 
 func DumpCensusVariableGroups() {

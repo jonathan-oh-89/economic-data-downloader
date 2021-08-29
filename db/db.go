@@ -19,7 +19,6 @@ func Test() {
 }
 
 func connectToDb() *sql.DB {
-	// dbConfig := c.Config
 	err := godotenv.Load(".env")
 	if err != nil {
 		panic(err)

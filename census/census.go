@@ -37,8 +37,7 @@ func testAPI(apiparams string, groupid string, geoLevel string) {
 
 	response, err := http.Get(url)
 	if err != nil {
-		fmt.Print("ERROR: ", err)
-		panic(err)
+		log.Fatal("ERROR: ", err)
 	}
 
 	defer response.Body.Close()
@@ -51,7 +50,7 @@ func testAPI(apiparams string, groupid string, geoLevel string) {
 	var arr [][]string
 	err = json.Unmarshal(responseData, &arr)
 	if err != nil {
-		fmt.Print(err)
+		log.Fatal(err)
 	}
 
 	censusVariablesLookup2 := getVariablesToInclude(groupid, geoLevel, false)
@@ -60,7 +59,7 @@ func testAPI(apiparams string, groupid string, geoLevel string) {
 		testAggregate(arr[0], dataRow, censusVariablesLookup2, true)
 
 		if i > 1 {
-			fmt.Printf("*** TEMP STOP ITERATE")
+			log.Print("*** TEMP STOP ITERATE")
 			break
 		}
 	}

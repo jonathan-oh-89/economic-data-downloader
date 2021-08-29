@@ -1,21 +1,31 @@
 variableNameArr,COL.1,COL.2
 NAME,NAME,"Orange County, California"
-Total,B11012_001E,1037492
-"Male householder, no spouse or partner present!!With relatives, no own children under 18 years",B11012_016E,30609
-"Female householder, no spouse or partner present!!With own children under 18 years",B11012_010E,41777
-"Female householder, no spouse or partner present!!Living alone",B11012_009E,126368
-"Female householder, no spouse or partner present!!With relatives, no own children under 18 years",B11012_011E,63959
-Cohabiting couple household,B11012_005E,57500
-Married-couple household,B11012_002E,569260
-Married-couple household!!With no own children under 18 years,B11012_004E,322310
-Cohabiting couple household!!With no own children of the householder under 18 years,B11012_007E,37744
-"Male householder, no spouse or partner present",B11012_013E,159440
-"Male householder, no spouse or partner present!!With only nonrelatives present",B11012_017E,23856
-"Male householder, no spouse or partner present!!With own children under 18 years",B11012_015E,12508
-Married-couple household!!With own children under 18 years,B11012_003E,246950
-Cohabiting couple household!!With own children of the householder under 18 years,B11012_006E,19756
-"Female householder, no spouse or partner present",B11012_008E,251292
-"Female householder, no spouse or partner present!!With only nonrelatives present",B11012_012E,19188
-"Male householder, no spouse or partner present!!Living alone",B11012_014E,92467
+With cash rent!!$900 to $999,B25056_019E,9981
+"With cash rent!!$2,500 to $2,999",B25056_024E,39633
+With cash rent!!$650 to $699,B25056_015E,1044
+"With cash rent!!$1,500 to $1,999",B25056_022E,139775
+"With cash rent!!$1,250 to $1,499",B25056_021E,63643
+With cash rent!!$700 to $749,B25056_016E,2006
+With cash rent!!$550 to $599,B25056_013E,1270
+With cash rent!!$400 to $449,B25056_010E,2530
+With cash rent!!$350 to $399,B25056_009E,1339
+With cash rent!!$500 to $549,B25056_012E,2126
+"With cash rent!!$3,000 to $3,499",B25056_025E,17269
+With cash rent!!$750 to $799,B25056_017E,2016
+With cash rent!!$450 to $499,B25056_011E,1140
+With cash rent!!$600 to $649,B25056_014E,2004
+"With cash rent!!$3,500 or more",B25056_026E,10532
+"With cash rent!!$2,000 to $2,499",B25056_023E,80154
+"With cash rent!!$1,000 to $1,249",B25056_020E,40879
+No cash rent,B25056_027E,10221
+With cash rent!!$150 to $199,B25056_005E,651
+With cash rent!!$250 to $299,B25056_007E,2784
+With cash rent,B25056_002E,431999
+Total,B25056_001E,442220
+With cash rent!!Less than $100,B25056_003E,881
+With cash rent!!$200 to $249,B25056_006E,2938
+With cash rent!!$300 to $349,B25056_008E,1511
+With cash rent!!$100 to $149,B25056_004E,495
+With cash rent!!$800 to $899,B25056_018E,5398
 state,state,06
 county,county,059

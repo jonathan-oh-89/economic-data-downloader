@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jonathan-oh-89/economic-data-downloader/db"
 	"github.com/jonathan-oh-89/economic-data-downloader/utils"
 )
 
@@ -19,16 +18,11 @@ type BuildingPermits struct {
 
 func GetBuildingPermits() map[string]BuildingPermits {
 	censusCbsaMap := utils.CensusCbsaVersionMap()
-	cbsacodes := db.MongoGetCbsaCodes()
 
 	buildingPermits := make(map[string]BuildingPermits, 0)
 
-	for _, cbsa := range cbsacodes {
-		buildingPermits[cbsa] = BuildingPermits{}
-	}
-
 	// years := []string{"05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21"}
-	years := []string{"21"}
+	years := []string{"20", "21"}
 	months := []string{"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"}
 
 	for _, year := range years {
@@ -105,12 +99,15 @@ func GetBuildingPermits() map[string]BuildingPermits {
 					cbsacode = censusCbsaMap[oldcbsacode]
 				}
 
-				alldates := buildingPermits[cbsacode].dates
-				alldates = append(alldates, date)
-				alltotalunits := buildingPermits[cbsacode].totalunits
-				alltotalunits = append(alltotalunits, totalunits)
+				if cbsabp, ok := buildingPermits[cbsacode]; ok {
+					cbsabp.dates = append(cbsabp.dates, date)
+					cbsabp.totalunits = append(cbsabp.totalunits, totalunits)
 
-				buildingPermits[cbsacode] = BuildingPermits{dates: alldates, totalunits: alltotalunits}
+					buildingPermits[cbsacode] = BuildingPermits{dates: cbsabp.dates, totalunits: cbsabp.totalunits}
+				} else {
+					buildingPermits[cbsacode] = BuildingPermits{dates: []string{date}, totalunits: []string{totalunits}}
+				}
+
 			}
 
 		}
