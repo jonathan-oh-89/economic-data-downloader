@@ -114,8 +114,30 @@ func MongoGetCountiesMap() map[string]model.CountyInfo {
 	return countyMap
 }
 
-func MongoGetEsriTractsMap() map[string]model.EsriTractsInfo {
+func MongoGetCbsaMap() map[string]model.CBSAInfo {
 
+	client := ConnectToMongo()
+	collection := client.Database("scopeout").Collection("Cbsa")
+	cursor, err := collection.Find(context.TODO(), bson.D{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var results []model.CBSAInfo
+	if err := cursor.All(context.TODO(), &results); err != nil {
+		log.Fatal(err)
+	}
+
+	cbsaMap := make(map[string]model.CBSAInfo)
+
+	for _, record := range results {
+		cbsaMap[record.CbsaCode] = record
+	}
+
+	return cbsaMap
+}
+
+func MongoGetEsriTractsList() []model.EsriTractsInfo {
 	client := ConnectToMongo()
 	collection := client.Database("scopeout").Collection("EsriTracts")
 	cursor, err := collection.Find(context.TODO(), bson.D{})
@@ -128,13 +150,30 @@ func MongoGetEsriTractsMap() map[string]model.EsriTractsInfo {
 		log.Fatal(err)
 	}
 
-	esriTractsMap := make(map[string]model.EsriTractsInfo)
+	return results
+}
 
-	for _, record := range results {
-		esriTractsMap[record.CountyFullCode] = record
+func MongoGetEsriCrimeCounties() map[string]model.EsriCrimeCountyInfo {
+
+	client := ConnectToMongo()
+	collection := client.Database("scopeout").Collection("EsriCrime")
+	cursor, err := collection.Find(context.TODO(), bson.D{})
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	return esriTractsMap
+	var results []model.EsriCrimeCountyInfo
+	if err := cursor.All(context.TODO(), &results); err != nil {
+		log.Fatal(err)
+	}
+
+	esriCrimeMap := make(map[string]model.EsriCrimeCountyInfo)
+
+	for _, record := range results {
+		esriCrimeMap[record.CountyFullCode] = record
+	}
+
+	return esriCrimeMap
 }
 
 func MongoStoreGeo() {
@@ -279,6 +318,41 @@ func MongoStoreEsriTracts(esriTracts []model.EsriTractsInfo, client *mongo.Clien
 
 	for _, tract := range esriTracts {
 		data, _ := utils.MarshallStructtoBson(tract)
+		geoArray = append(geoArray, data)
+	}
+
+	_, err := collection.InsertMany(context.TODO(), geoArray)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func MongoStoreEsriCrime(crime model.EsriCrimeCountyInfo, client *mongo.Client) {
+	geoArray := []interface{}{}
+	collection := client.Database("scopeout").Collection("EsriCrime")
+
+	data, _ := utils.MarshallStructtoBson(crime)
+	geoArray = append(geoArray, data)
+
+	_, err := collection.InsertMany(context.TODO(), geoArray)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func MongoStoreTempMap(mapdata map[string]int, client *mongo.Client) {
+	geoArray := []interface{}{}
+	collection := client.Database("scopeout").Collection("test_deletewhendone")
+
+	type CountyCount struct {
+		Countyid string
+		Count    int
+	}
+
+	for k, v := range mapdata {
+		storedata := CountyCount{Countyid: k, Count: v}
+
+		data, _ := utils.MarshallStructtoBson(storedata)
 		geoArray = append(geoArray, data)
 	}
 

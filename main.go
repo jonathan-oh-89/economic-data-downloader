@@ -14,12 +14,12 @@ func main() {
 	// db.Test()
 
 	log.Print("Starting")
-	esri.DumpEsriTractData(50)
 
 	if false {
 		//setup mysql database
 		db.InitializeDB()
 		db.MongoStoreGeo()
+		esri.DumpEsriTractData(200)
 		census.DumpCensusTracts(2010)
 		census.DumpCensusTracts(2020)
 		census.DumpCensusVariableGroups()
@@ -27,12 +27,41 @@ func main() {
 	}
 
 	// CENSUS SECTION
-	census.DownloadToCSV("B25056")
+	// census.DownloadToCSV("B25056")
 	// census.Test("B11012", "county")
 	// census.Do("06", "county")
 
 	//BUILDING PERMITS - map msa - dates &total housing units permitted
 	// census.GetBuildingPermits()
 
+	//CRIME SECTION
+
+	if false {
+		//carefull with running this
+		esri.DumpEsriCrimeData(1, 2021)
+	}
+
 	log.Print("Finished running")
 }
+
+/*
+Misc scripts
+
+
+Get count of tracts per county
+	// tracts := db.MongoGetEsriTractsList()
+
+	// countytractcounty := make(map[string]int, 0)
+
+	// for _, v := range tracts {
+	// 	if _, ok := countytractcounty[v.CountyFullCode]; ok {
+	// 		countytractcounty[v.CountyFullCode] = countytractcounty[v.CountyFullCode] + 1
+	// 		continue
+	// 	} else {
+	// 		countytractcounty[v.CountyFullCode] = 1
+	// 	}
+	// }
+
+	// mc := db.ConnectToMongo()
+	// db.MongoStoreTempMap(countytractcounty, mc)
+*/
