@@ -86,6 +86,7 @@ func InitializeCensusGroups(cvglist []model.CensusVariablesGroups) {
 	}
 }
 
+// Inserts census variables into db
 func InitializeCensusVariables(censusVariablesForDB []model.CensusVariables, storeInDBDone chan bool) {
 
 	db := connectToDb()

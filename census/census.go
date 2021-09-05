@@ -113,6 +113,7 @@ func callAPI(apiparams string, groupid string, geoLevel string, geoFips string) 
 	}
 }
 
+// Returns a map of census variable groups. VariableId is used as key. Define all the data to be stored here.
 func getVariablesToInclude(groupID string, geoLevel string, paramsOnly bool) map[string]variablesDescGroup {
 
 	includeVariables := map[string]variablesDescGroup{}
@@ -247,6 +248,7 @@ func getVariablesToInclude(groupID string, geoLevel string, paramsOnly bool) map
 	return includeVariables
 }
 
+// Gets a sample set for a census variable groupid and stores into csv.
 func DownloadToCSV(testgroup string) {
 	censusVariablesLookup := map[string]string{}
 

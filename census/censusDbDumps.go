@@ -166,6 +166,7 @@ func DumpCensusVariableGroups() {
 	db.InitializeCensusGroups(censusVariableGroups["groups"])
 }
 
+// Goes through list of census groups in censusgroups.csv. Function will then kick off gorouting to retrieve all variables and store into db.
 func DumpSelectedCensusVariables() {
 	storeInDBDone := make(chan bool)
 
@@ -174,7 +175,7 @@ func DumpSelectedCensusVariables() {
 	count := 0
 	for _, line := range lines {
 		if line[0] == "y" {
-			cleanAndStoreCensusVariables(line[1], line[2], line[3], storeInDBDone)
+			cleanAndStoreCensusVariables(line[3], storeInDBDone)
 			count++
 		}
 	}
@@ -194,8 +195,8 @@ func DumpSelectedCensusVariables() {
 	}
 }
 
-//cleanAndStoreCensusVariables - gets variables and stores into db
-func cleanAndStoreCensusVariables(groupname string, groupdesc string, variableslink string, storeInDBDone chan bool) {
+// Retrieves all variables for a given group link, strip out unnecessary words/chars and stores into db.
+func cleanAndStoreCensusVariables(variableslink string, storeInDBDone chan bool) {
 	response, err := http.Get(variableslink)
 	if err != nil {
 		fmt.Print("", err)

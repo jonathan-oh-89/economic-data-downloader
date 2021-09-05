@@ -38,7 +38,8 @@ func main() {
 
 	if false {
 		//carefull with running this
-		esri.DumpEsriCrimeData(1, 2021)
+		countiesToGetCrime := []string{"29189", "45045"}
+		esri.DumpEsriCrimeData(len(countiesToGetCrime), 2021, countiesToGetCrime)
 	}
 
 	log.Print("Finished running")
@@ -48,7 +49,7 @@ func main() {
 Misc scripts
 
 
-Get count of tracts per county
+*****	Get count of tracts per county	******
 	// tracts := db.MongoGetEsriTractsList()
 
 	// countytractcounty := make(map[string]int, 0)
@@ -64,4 +65,5 @@ Get count of tracts per county
 
 	// mc := db.ConnectToMongo()
 	// db.MongoStoreTempMap(countytractcounty, mc)
+
 */

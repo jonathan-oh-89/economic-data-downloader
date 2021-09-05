@@ -16,6 +16,7 @@ type BuildingPermits struct {
 	totalunits []string
 }
 
+// Returns a map of building permit data. Cbsa code is used as key.
 func GetBuildingPermits() map[string]BuildingPermits {
 	censusCbsaMap := utils.CensusCbsaVersionMap()
 

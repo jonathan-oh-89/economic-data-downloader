@@ -56,6 +56,7 @@ func testAggregate(header []string, dataRow []string, censusvariableslookup map[
 	fmt.Print(aggregate)
 }
 
+// Summarizes census variables into, more generalized categories. Categories are defined in the getVariablesToInclude function in census.go
 func aggregate(header []string, dataRow []string, censusvariableslookup map[string]variablesDescGroup, calculatePercentage bool) map[string]interface{} {
 	aggregate := map[string]interface{}{}
 	totalSizeForGroup := 0.0
@@ -129,16 +130,3 @@ func performPercentageCalculation(aggregate map[string]interface{}, totalSizeFor
 	}
 	return aggregate
 }
-
-// func formatGeoFipsCode(geoLevel string, fips string) string {
-// 	formattedFips := ""
-
-// 	switch geoLevel {
-// 	case "state":
-// 		formattedFips = fmt.Sprintf("%02s", fips)
-// 	case "county":
-// 		formattedFips = fmt.Sprintf("%03s", fips)
-// 	}
-
-// 	return formattedFips
-// }

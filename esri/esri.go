@@ -46,21 +46,27 @@ func getEsriToken() string {
 	return target.AccessToken
 }
 
-func DumpEsriCrimeData(howManyApiHits int, crimeyear int) {
+// Makes api requests for crime indices and stores into mongo
+func DumpEsriCrimeData(howManyApiHits int, crimeyear int, overridecounty []string) {
 	token := getEsriToken()
 
-	countiesToRun := checkIfCountyForCrimeExists()
+	countiesToRun := make([]string, 0)
 
-	if len(countiesToRun) < 1 {
-		return
+	if len(overridecounty) < 1 {
+		countiesToRun = getCountiesToRunForCrimeExists()
+
+		if len(countiesToRun) < 1 {
+			log.Print("No more counties to run")
+			return
+		}
+	} else {
+		countiesToRun = overridecounty
 	}
 
-	for i, v := range countiesToRun {
+	for i, countyId := range countiesToRun {
 		if i >= howManyApiHits {
 			break
 		}
-
-		countyId := v.CountyFullCode
 
 		studyAreas := fmt.Sprintf("[{\"sourceCountry\":\"US\", \"layer\":\"US.Counties\",\"ids\":[\"%s\"],\"comparisonLevels\": [{\"layer\":\"US.Tracts\"}] }]", countyId)
 
@@ -101,7 +107,7 @@ func DumpEsriCrimeData(howManyApiHits int, crimeyear int) {
 			continue
 		}
 
-		for i, data := range allCrimeFeatures {
+		for _, data := range allCrimeFeatures {
 			if data.Attributes.StdGeographyLevel == "US.Counties" {
 				esriCrimeCounty = model.EsriCrimeCountyInfo{
 					CountyFullCode:    countyId,
@@ -135,10 +141,6 @@ func DumpEsriCrimeData(howManyApiHits int, crimeyear int) {
 					CRMCYMVEH:         data.Attributes.CRMCYMVEH,
 				})
 			}
-
-			if i >= 1000 {
-				log.Fatal("ERROR: Standard geography returned more than 1000 records")
-			}
 		}
 
 		esriCrimeCounty.TractsCrime = esriCrimeTracts
@@ -150,12 +152,14 @@ func DumpEsriCrimeData(howManyApiHits int, crimeyear int) {
 	log.Print("Finished storing Esri Crime")
 }
 
+// Makes api requests for tracts and stores into mongo
 func DumpEsriTractData(howManyApiHits int) {
 	token := getEsriToken()
 
-	countiesLeftToRun := checkIfCountyForTractsExists()
+	countiesLeftToRun := getCountiesToRunForEsriTracts()
 
 	if len(countiesLeftToRun) < 1 {
+		log.Print("No more counties to run")
 		return
 	}
 
@@ -243,38 +247,43 @@ func esriApi(url string, params map[string]string) (*http.Response, error) {
 	return resp, nil
 }
 
-func checkIfCountyForCrimeExists() []model.CountyInfo {
-	//Get select cbsa for now
-	cbsas := db.MongoGetCbsaMap()
-	cbasFilterList := []string{"31080"}
-	countiesFilter := make([]string, 0)
-	for k, cbsa := range cbsas {
-		if utils.CheckStringInList(cbasFilterList, k) {
-			for _, county := range cbsa.Counties {
-				countiesFilter = append(countiesFilter, county.CountyFullCode)
-			}
-		}
-	}
+// Returns a filtered list of counties that have not been run for crime indices
+func getCountiesToRunForCrimeExists() []string {
+	// //Get select cbsa for now
+	// cbsas := db.MongoGetCbsaMap()
+	// cbasFilterList := []string{"31080"}
+	// countiesFilter := make([]string, 0)
+	// for k, cbsa := range cbsas {
+	// 	if utils.CheckStringInList(cbasFilterList, k) {
+	// 		for _, county := range cbsa.Counties {
+	// 			countiesFilter = append(countiesFilter, county.CountyFullCode)
+	// 		}
+	// 	}
+	// }
 
 	allCounties := db.MongoGetCountiesMap()
 
+	existCountyIds := []string{}
 	existingCounties := db.MongoGetEsriCrimeCounties()
 
-	countiesLeftToRun := make([]model.CountyInfo, 0)
+	for _, county := range existingCounties {
+		existCountyIds = append(existCountyIds, county.CountyFullCode)
+	}
+
+	countiesLeftToRun := make([]string, 0)
 
 	countiesSkipped := 0
 
-	for k, v := range allCounties {
-		if _, ok := existingCounties[k]; ok {
-			countiesSkipped++
+	for _, county := range allCounties {
+		if utils.CheckStringInList(existCountyIds, county.CountyFullCode) {
 			continue
 		}
 
-		if !utils.CheckStringInList(countiesFilter, k) {
-			log.Print("Skipping county: ", k)
-			continue
-		}
-		countiesLeftToRun = append(countiesLeftToRun, v)
+		// // Filter out counties not in select cbsa
+		// if !utils.CheckStringInList(countiesFilter, county.CountyFullCode) {
+		// 	continue
+		// }
+		countiesLeftToRun = append(countiesLeftToRun, county.CountyFullCode)
 	}
 
 	log.Printf("Skipped %d/%d counties", countiesSkipped, len(allCounties))
@@ -282,7 +291,8 @@ func checkIfCountyForCrimeExists() []model.CountyInfo {
 	return countiesLeftToRun
 }
 
-func checkIfCountyForTractsExists() []model.CountyInfo {
+// Returns a filtered list of counties that have not been run for tracts
+func getCountiesToRunForEsriTracts() []model.CountyInfo {
 	allCounties := db.MongoGetCountiesMap()
 
 	existingEsriTracts := db.MongoGetEsriTractsList()
@@ -300,17 +310,17 @@ func checkIfCountyForTractsExists() []model.CountyInfo {
 	// Counties with no data
 	excludeCounties := []string{"02063", "02066"}
 
-	for k, v := range allCounties {
-		if _, ok := existingCounties[k]; ok {
+	for _, county := range allCounties {
+		if _, ok := existingCounties[county.CountyFullCode]; ok {
 			countiesSkipped++
 			continue
 		}
 
-		if utils.CheckStringInList(excludeCounties, k) {
+		if utils.CheckStringInList(excludeCounties, county.CountyFullCode) {
 			continue
 		}
 
-		countiesLeftToRun = append(countiesLeftToRun, v)
+		countiesLeftToRun = append(countiesLeftToRun, county)
 	}
 
 	log.Printf("Skipped %d/%d counties", countiesSkipped, len(allCounties))

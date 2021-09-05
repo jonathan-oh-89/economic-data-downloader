@@ -44,7 +44,44 @@ func ConnectToMongo() *mongo.Client {
 	return client
 }
 
-func MongoGetCbsaCodes() map[string]model.CBSAInfo {
+// Returns all cbsa infos
+func MongoGetAllCbsas() []model.CBSAInfo {
+
+	client := ConnectToMongo()
+	collection := client.Database("scopeout").Collection("Cbsa")
+	cursor, err := collection.Find(context.TODO(), bson.D{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var results []model.CBSAInfo
+	if err := cursor.All(context.TODO(), &results); err != nil {
+		log.Fatal(err)
+	}
+
+	return results
+}
+
+// Returns all county infos
+func MongoGetCountiesMap() []model.CountyInfo {
+
+	client := ConnectToMongo()
+	collection := client.Database("scopeout").Collection("County")
+	cursor, err := collection.Find(context.TODO(), bson.D{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var results []model.CountyInfo
+	if err := cursor.All(context.TODO(), &results); err != nil {
+		log.Fatal(err)
+	}
+
+	return results
+}
+
+// Returns map of cbsas using cbsa code as key
+func MongoGetCbsaMap() map[string]model.CBSAInfo {
 
 	client := ConnectToMongo()
 	collection := client.Database("scopeout").Collection("Cbsa")
@@ -67,6 +104,7 @@ func MongoGetCbsaCodes() map[string]model.CBSAInfo {
 	return cbsaMap
 }
 
+// Returns map of states using state fips as key
 func MongoGetStatesMap() map[string]model.StateInfo {
 
 	client := ConnectToMongo()
@@ -91,52 +129,7 @@ func MongoGetStatesMap() map[string]model.StateInfo {
 	return stateMap
 }
 
-func MongoGetCountiesMap() map[string]model.CountyInfo {
-
-	client := ConnectToMongo()
-	collection := client.Database("scopeout").Collection("County")
-	cursor, err := collection.Find(context.TODO(), bson.D{})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var results []model.CountyInfo
-	if err := cursor.All(context.TODO(), &results); err != nil {
-		log.Fatal(err)
-	}
-
-	countyMap := make(map[string]model.CountyInfo)
-
-	for _, record := range results {
-		countyMap[record.StateInfo.FipsStateCode+record.FipsCountyCode] = record
-	}
-
-	return countyMap
-}
-
-func MongoGetCbsaMap() map[string]model.CBSAInfo {
-
-	client := ConnectToMongo()
-	collection := client.Database("scopeout").Collection("Cbsa")
-	cursor, err := collection.Find(context.TODO(), bson.D{})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var results []model.CBSAInfo
-	if err := cursor.All(context.TODO(), &results); err != nil {
-		log.Fatal(err)
-	}
-
-	cbsaMap := make(map[string]model.CBSAInfo)
-
-	for _, record := range results {
-		cbsaMap[record.CbsaCode] = record
-	}
-
-	return cbsaMap
-}
-
+// Returns all esri tracts
 func MongoGetEsriTractsList() []model.EsriTractsInfo {
 	client := ConnectToMongo()
 	collection := client.Database("scopeout").Collection("EsriTracts")
@@ -153,7 +146,8 @@ func MongoGetEsriTractsList() []model.EsriTractsInfo {
 	return results
 }
 
-func MongoGetEsriCrimeCounties() map[string]model.EsriCrimeCountyInfo {
+// Returns all counties that have been run for esri crime
+func MongoGetEsriCrimeCounties() []model.EsriCrimeCountyInfo {
 
 	client := ConnectToMongo()
 	collection := client.Database("scopeout").Collection("EsriCrime")
@@ -167,15 +161,10 @@ func MongoGetEsriCrimeCounties() map[string]model.EsriCrimeCountyInfo {
 		log.Fatal(err)
 	}
 
-	esriCrimeMap := make(map[string]model.EsriCrimeCountyInfo)
-
-	for _, record := range results {
-		esriCrimeMap[record.CountyFullCode] = record
-	}
-
-	return esriCrimeMap
+	return results
 }
 
+//Gets cbsa, state, county fips codes and names and stores into mongo
 func MongoStoreGeo() {
 	stateInfo := model.StateInfo{}
 	stateLookup := make(map[string]model.StateInfo)
@@ -290,6 +279,7 @@ func MongoStoreGeo() {
 	fmt.Println("Finished storing geo")
 }
 
+//Gets cbsa, state, county fips codes and names and stores into mongo
 func MongoStoreTracts(tracts []model.TractInfo, maxMongoConnections <-chan int, success chan bool, client *mongo.Client) {
 	geoArray := []interface{}{}
 
